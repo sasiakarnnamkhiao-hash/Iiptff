@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ta Ray Store - Premium Game Service 🎮</title>
+<link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&family=Mitr:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+/* 1. RESET & TEXT PRECISION */
+* { margin: 0; padding: 0; box-sizing: border-box; letter-spacing: 0px !important; }
+:root {
+  --p: #2b59ff; --p-light: #84a2ff; --p-dark: #1a36a3;
+  --bg: #050510; --bg-light: #0d1633;
+  --glass: rgba(255, 255, 255, 0.04);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --blur: blur(25px);
+}
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Kanit', sans-serif;
+  background: var(--bg); color: #fff;
+  overflow-x: hidden; line-height: 1.6;
+}
+
+/* Particles วิ้งๆ แบบเบาบาง */
+#pts { position: fixed; inset: 0; pointer-events: none; z-index: 0; }
+.pt { position: absolute; animation: ptUp linear infinite; opacity: 0; color: var(--p-light); }
+@keyframes ptUp {
+  0%   { transform: translateY(105vh); opacity: 0; }
+  10%  { opacity: 0.3; }
+  90%  { opacity: 0.3; }
+  100% { transform: translateY(-10vh) rotate(360deg); opacity: 0; }
+}
+
+/* 2. TOPBAR & DRAWER (เนียนเหมือนเทมเพลตที่พี่ชอบ) */
+.topbar {
+  position: sticky; top: 0; z-index: 1000; height: 56px;
+  background: var(--bg); border-bottom: 2px solid var(--p);
+  display: flex; align-items: center; justify-content: space-between; padding: 0 24px;
+}
+.topbar-brand { font-family: 'Mitr', sans-serif; font-size: 20px; font-weight: 700; color: #fff; }
+.topbar-brand span { color: var(--p-light); text-shadow: 0 0 15px var(--p); }
+
+.ham {
+  width: 38px; height: 38px; cursor: pointer; display: flex; flex-direction: column; 
+  align-items: center; justify-content: center; gap: 5px; border-radius: 8px;
+  border: 1.5px solid var(--p); background: rgba(43,89,255,0.1); transition: 0.3s;
+}
+.ham span { display: block; width: 18px; height: 2.2px; background: #fff; border-radius: 2px; transition: 0.3s; }
+.ham.open span:nth-child(1) { transform: translateY(7.2px) rotate(45deg); }
+.ham.open span:nth-child(2) { opacity: 0; }
+.ham.open span:nth-child(3) { transform: translateY(-7.2px) rotate(-45deg); }
+
+.drawer {
+  position: fixed; top: 0; left: 0; z-index: 2000; width: 240px; height: 100vh;
+  background: linear-gradient(180deg, #050515, #0d1633, #050515);
+  border-right: 2px solid var(--p); transform: translateX(-100%);
+  transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex; flex-direction: column; padding: 40px 0;
+}
+.drawer.open { transform: translateX(0); }
+.dr-a {
+  color: rgba(255,255,255,0.75); text-decoration: none; padding: 16px 28px;
+  font-size: 14px; border-bottom: 1px solid rgba(255,255,255,0.05); transition: 0.3s;
+}
+.dr-a:hover { background: rgba(43,89,255,0.1); color: #fff; padding-left: 35px; }
+.overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 1500; opacity: 0; pointer-events: none; transition: 0.3s; }
+.overlay.open { opacity: 1; pointer-events: all; }
+
+/* 3. HERO HEADER (เนียนไปกับเว็บ - ไม่ตะโกน) */
+.hero {
+  background: linear-gradient(135deg, #0d1633 0%, #1a36a3 100%);
+  padding: 45px 32px 35px; position: relative;
+  display: flex; align-items: center; justify-content: space-between;
+  min-height: 200px;
+}
+.hero-txt { position: relative; z-index: 2; }
+.hero-tag {
+  background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1);
+  padding: 4px 14px; border-radius: 20px; font-size: 11px; margin-bottom: 10px; display: inline-block;
+}
+.hero-title {
+  font-family: 'Mitr', sans-serif; font-size: 52px; font-weight: 700; line-height: 1.1;
+  background: linear-gradient(135deg, #fff 0%, var(--p-light) 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+}
+.hero-sub { font-size: 12px; color: rgba(255,255,255,0.6); letter-spacing: 2px; margin-top: 5px; }
+.hero-img { width: 100px; height: 100px; border-radius: 22px; border: 3px solid #fff; object-fit: cover; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+
+/* Wave ส่วนโค้งใต้ Header ให้เว็บดูละมุน */
+.hero-wave {
+  width: 100%; height: 35px; overflow: hidden; background: var(--bg); position: relative;
+}
+.hero-wave::before {
+  content: ''; position: absolute; bottom: 0; left: 0; right: 0; top: 0;
+  background: linear-gradient(135deg, #0d1633, #1a36a3);
+  border-radius: 0 0 50% 50% / 0 0 100% 100%;
+}
+
+/* 4. CONTENT & TABLES (ห้ามตกบรรทัด) */
+.content { max-width: 860px; margin: 0 auto; padding: 24px 25px 60px; }
+
+.sh {
+  display: flex; align-items: center; gap: 10px; margin: 35px 0 18px;
+  background: linear-gradient(90deg, #1e0838 0%, transparent 100%);
+  border-left: 4px solid var(--p); border-radius: 0 12px 12px 0; padding: 12px 18px;
+}
+.sh h2 { font-size: 16px; font-weight: 700; color: #fff; }
+
+.box {
+  background: var(--glass); border: 1px solid var(--glass-border);
+  backdrop-filter: var(--blur); -webkit-backdrop-filter: var(--blur);
+  border-radius: 14px; padding: 22px; margin-bottom: 20px;
+}
+
+/* แก้ไขให้ตัวหนังสือและราคาอยู่บรรทัดเดียวกันเป๊ะ */
+.rate-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+.rate-row { 
+  display: flex; justify-content: space-between; align-items: center;
+  font-size: 14px; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05);
+  white-space: nowrap; /* ห้ามตกบรรทัด */
+}
+.rate-row:last-child { border-bottom: none; }
+.rate-label { overflow: hidden; text-overflow: ellipsis; }
+.rate-val { color: var(--p-light); font-weight: 700; margin-left: 10px; flex-shrink: 0; }
+
+@media (max-width: 650px) {
+  .rate-grid { grid-template-columns: 1fr; }
+  .hero-title { font-size: 42px; }
+}
+
+/* 5. STEPS (เลข 1 2 3 4 แบบเนียนๆ) */
+.steps { display: flex; flex-direction: column; gap: 18px; }
+.step { display: flex; gap: 15px; align-items: flex-start; }
+.step-n {
+  width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0;
+  background: linear-gradient(135deg, var(--p-dark), var(--p));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 800; box-shadow: 0 2px 10px rgba(43,89,255,0.3);
+}
+.step-t { font-size: 14px; color: rgba(255,255,255,0.85); padding-top: 4px; }
+.step-t b { color: var(--p-light); }
+
+/* 6. BUTTONS & FOOTER */
+.btn {
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  width: 100%; padding: 18px; border-radius: 14px; text-decoration: none;
+  font-weight: 700; font-size: 15px; transition: 0.3s;
+}
+.btn-blue { background: linear-gradient(135deg, var(--p), var(--p-light)); color: #fff; }
+.btn-fb { background: #1877f2; color: #fff; margin-top: 15px; }
+.btn:hover { transform: translateY(-3px); filter: brightness(1.1); box-shadow: 0 8px 25px rgba(43,89,255,0.3); }
+
+.warn { border-left: 4px solid #ffcc00; background: rgba(255, 204, 0, 0.05); padding: 18px; border-radius: 0 12px 12px 0; font-size: 13px; color: rgba(255,255,255,0.8); }
+
+.footer { padding: 40px 20px; text-align: center; border-top: 2px solid var(--p); background: #050510; }
+.footer-t { font-size: 12px; color: rgba(132,162,255,0.4); letter-spacing: 2px; }
+</style>
+</head>
+<body>
+
+<div id="pts"></div>
+
+<div class="topbar">
+  <div style="display:flex; align-items:center; gap:12px;">
+    <div class="ham" id="hamBtn" onclick="toggleDrawer()">
+      <span></span><span></span><span></span>
+    </div>
+    <div class="topbar-brand">Ta<span>Ray</span></div>
+  </div>
+  <a href="https://www.facebook.com/share/1HXq3wncat/" target="_blank" style="color:#fff; text-decoration:none; font-size:11px; background:rgba(255,255,255,0.1); padding:6px 16px; border-radius:50px; border:1px solid var(--glass-border);">📘 Facebook</a>
+</div>
+
+<div class="overlay" id="overlay" onclick="closeDrawer()"></div>
+<div class="drawer" id="drawer">
+  <div style="text-align:center; padding:20px 0;">
+    <div style="width:70px; height:70px; border-radius:50%; border:2px solid var(--p); margin:0 auto 10px; background:url('IMG_7201.jpeg') center/cover;"></div>
+    <div style="font-size:14px; font-weight:700; color:var(--p-light);">Ta Ray Store</div>
+  </div>
+  <nav>
+    <a href="#top" class="dr-a" onclick="closeDrawer()">🏠 หน้าแรก</a>
+    <a href="#rates-sell" class="dr-a" onclick="closeDrawer()">💰 เรทราคาฝากขาย</a>
+    <a href="#rates-find" class="dr-a" onclick="closeDrawer()">🔍 เรทราคาหาไอดี</a>
+    <a href="#how" class="dr-a" onclick="closeDrawer()">📋 ขั้นตอนการสั่ง</a>
+  </nav>
+</div>
+
+<div class="page" id="top">
+  <div class="hero">
+    <div class="hero-txt">
+      <div class="hero-tag">🛍️ บริการรับฝากขายคุณภาพ</div>
+      <h1 class="hero-title">Ta Ray</h1>
+      <div class="hero-sub">✦ PREMIUM GAME STORE ✦</div>
+    </div>
+    <img src="IMG_7201.jpeg" class="hero-img">
+  </div>
+  <div class="hero-wave"></div>
+
+  <div class="content">
+    
+    <div class="sh" id="rates-sell"><h2>💰 เรทราคาฝากขายไอดี</h2></div>
+    <div class="box">
+      <div class="rate-grid">
+        <div class="rate-column">
+          <div class="rate-row"><span class="rate-label">500 – 900</span><span class="rate-val">15 B</span></div>
+          <div class="rate-row"><span class="rate-label">1000 – 1499</span><span class="rate-val">25 B</span></div>
+          <div class="rate-row"><span class="rate-label">1500 – 1999</span><span class="rate-val">30 B</span></div>
+          <div class="rate-row"><span class="rate-label">2000 – 2499</span><span class="rate-val">45 B</span></div>
+          <div class="rate-row"><span class="rate-label">2500 – 4499</span><span class="rate-val">57 B</span></div>
+          <div class="rate-row"><span class="rate-label">4500 – 5999</span><span class="rate-val">65 B</span></div>
+          <div class="rate-row"><span class="rate-label">6000 – 7500</span><span class="rate-val">80 B</span></div>
+          <div class="rate-row"><span class="rate-label">7501 – 8500</span><span class="rate-val">95 B</span></div>
+        </div>
+        <div class="rate-column">
+          <div class="rate-row"><span class="rate-label">8501 – 9999</span><span class="rate-val">145 B</span></div>
+          <div class="rate-row"><span class="rate-label">10,000+</span><span class="rate-val">1.9%</span></div>
+          <div class="rate-row"><span class="rate-label">14,000+</span><span class="rate-val">2.5%</span></div>
+          <div class="rate-row"><span class="rate-label">19,000+</span><span class="rate-val">3.5%</span></div>
+          <div class="rate-row"><span class="rate-label">30,000+</span><span class="rate-val">4.5%</span></div>
+          <div class="rate-row"><span class="rate-label">50,000+</span><span class="rate-val">4.7%</span></div>
+          <div class="rate-row"><span class="rate-label">70,000+</span><span class="rate-val">5%</span></div>
+          <div class="rate-row"><span class="rate-label">100,000</span><span class="rate-val">5.5%</span></div>
+        </div>
+      </div>
+      <p style="text-align:center; font-size:12px; color:#ff8080; margin-top:20px; font-weight:500;">* คนที่เพิ่งใช้บริการจ่ายก่อนทุกกรณีนะคะ</p>
+      <img src="att.qinRJRdZk5uRPfzTV5LLWtC3_BvNc47dYtI2am68Mtc.jpeg" style="width:100%; border-radius:18px; margin-top:20px; border:1px solid var(--glass-border);">
+    </div>
+
+    <div class="sh" id="rates-find"><h2>🔍 เรทราคาหาไอดี</h2></div>
+    <div class="box">
+      <div class="rate-grid">
+        <div class="rate-column">
+          <div class="rate-row"><span class="rate-label">1 – 900</span><span class="rate-val">40 B</span></div>
+          <div class="rate-row"><span class="rate-label">901 – 1900</span><span class="rate-val">57 B</span></div>
+          <div class="rate-row"><span class="rate-label">1901 – 3500</span><span class="rate-val">75 B</span></div>
+          <div class="rate-row"><span class="rate-label">3501 – 6000</span><span class="rate-val">90 B</span></div>
+          <div class="rate-row"><span class="rate-label">6001 – 9000</span><span class="rate-val">120 B</span></div>
+          <div class="rate-row"><span class="rate-label">9001 – 9,999</span><span class="rate-val">145 B</span></div>
+        </div>
+        <div class="rate-column">
+          <div class="rate-row"><span class="rate-label">10,000+++</span><span class="rate-val">170 B</span></div>
+          <div class="rate-row"><span class="rate-label">15,000+++</span><span class="rate-val">200 B</span></div>
+          <div class="rate-row"><span class="rate-label">30,000+++</span><span class="rate-val">250 B</span></div>
+          <div class="rate-row"><span class="rate-label">50,000+++</span><span class="rate-val">275 B</span></div>
+          <div class="rate-row"><span class="rate-label">100,000+++</span><span class="rate-val">300 B</span></div>
+        </div>
+      </div>
+      <img src="IMG_0154.jpeg" style="width:100%; border-radius:18px; margin-top:20px; border:1px solid var(--glass-border);">
+    </div>
+
+    <div class="sh" id="how"><h2>📋 ขั้นตอนการสั่งซื้อ</h2></div>
+    <div class="box">
+      <div class="steps">
+        <div class="step"><div class="step-n">1</div><div class="step-t"><b>ทักแชท</b> เพื่อแจ้งความต้องการ (หาไอดี / ฝากขาย / ทำป้ายเรท)</div></div>
+        <div class="step"><div class="step-n">2</div><div class="step-t">ส่ง <b>รายละเอียดตามบรีฟ</b> ฟอร์ม หรือรูปภาพที่ต้องใช้ทำป้าย</div></div>
+        <div class="step"><div class="step-n">3</div><div class="step-t"><b>ชำระยอดเงิน</b> ตามเรทราคาที่ตกลง (ทางร้านรับชำระก่อนเริ่มงาน)</div></div>
+        <div class="step"><div class="step-n">4</div><div class="step-t"><b>รอรับผลงาน</b> และเช็คคิวงานผ่านปุ่มด้านล่างได้ทันที</div></div>
+      </div>
+      <a href="https://docs.google.com/spreadsheets/d/1-kKlNjdrTLPbQ0ogYQt7Fb-QtCoLyMmX0H57NfEOMwA/edit?usp=drivesdk" class="btn btn-blue" target="_blank" style="margin-top:20px;">📑 คลิกเพื่อเช็คคิวงานร้าน Ta Ray</a>
+    </div>
+
+    <div class="sh"><h2>📱 ติดต่อแอดมิน</h2></div>
+    <div class="box" style="text-align:center;">
+      <a href="https://www.facebook.com/share/1HXq3wncat/" class="btn btn-fb" target="_blank">📘 ทักแชท Facebook : Ta Ray</a>
+    </div>
+
+    <div class="warn">⚠️ ลูกค้าโปรดอ่านรายละเอียดให้ครบถ้วนก่อนสั่งงานเพื่อความเข้าใจที่ตรงกันนะคะ ✨</div>
+  </div>
+</div>
+
+<footer class="footer">
+  <div class="footer-t">✦ TA RAY STORE ✦ 2026 - PREMIUM SERVICE</div>
+</footer>
+
+<script>
+  function toggleDrawer() {
+    document.getElementById('drawer').classList.toggle('open');
+    document.getElementById('overlay').classList.toggle('open');
+    document.getElementById('hamBtn').classList.toggle('open');
+  }
+  function closeDrawer() {
+    document.getElementById('drawer').classList.remove('open');
+    document.getElementById('overlay').classList.remove('open');
+    document.getElementById('hamBtn').classList.remove('open');
+  }
+
+  const P = document.getElementById('pts');
+  for (let i = 0; i < 15; i++) {
+    const d = document.createElement('div');
+    d.className = 'pt';
+    d.textContent = '✦';
+    d.style.left = Math.random() * 100 + 'vw';
+    d.style.fontSize = (Math.random() * 8 + 10) + 'px';
+    d.style.animationDuration = (Math.random() * 10 + 12) + 's';
+    d.style.animationDelay = -(Math.random() * 20) + 's';
+    P.appendChild(d);
+  }
+</script>
+</body>
+</html>
